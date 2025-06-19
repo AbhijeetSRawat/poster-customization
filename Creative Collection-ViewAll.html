@@ -84,7 +84,7 @@
                             <a href="./auth-signin.html"><i class="fas fa-user user-icon"></i></a>
                         </div>
                         <div id="searchBtn">
-                            <input class="form-control me-2" id="search" type="search" placeholder="Search"
+                            <input class="form-control me-2" style="color: aqua;" id="search" type="search" placeholder="Search"
                                 aria-label="Search">
                             <button id="searchBtnn">
                                 <i class="fas fa-search"></i>
@@ -264,6 +264,14 @@
     <!-- <<<<<<<<<<<footerEnd >>>>>>>>>>>> -->
 
     <script src="./api/card-add-product.api.js"></script>
+    <script>
+  document.getElementById("searchBtnn").addEventListener("click", () => {
+    const input = document.getElementById("search").value.trim();
+    if (input) {
+      window.location.href = `search-results.html?q=${encodeURIComponent(input)}`;
+    }
+  });
+</script>
     <script src="script.js"></script>
 </body>
 </html>
