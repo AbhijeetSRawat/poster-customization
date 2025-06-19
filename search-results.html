@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Results</title>
+  <style>
+    :root {
+      --bg-color: #eaf3fa;
+      --text-color: #1c3a5c;
+      --card-bg: #ffffff;
+      --card-hover: #d0e5f5;
+      --highlight: #0077cc;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #111c2f;
+      --text-color: #f0f8ff;
+      --card-bg: #1c2a40;
+      --card-hover: #273a5a;
+      --highlight: #42b0ff;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background-color: var(--highlight);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--highlight);
+      margin-bottom: 30px;
+    }
+
+    .results-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      cursor: pointer;
+      width: 230px;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      background-color: var(--card-hover);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    p {
+      text-align: center;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <button class="theme-toggle" onclick="toggleTheme()">☀️ Toggle Mode</button>
+  <h1 id="result-heading">Search Results</h1>
+  <div class="results-container" id="results"></div>
+
+  <script>
+    const queryParams = new URLSearchParams(window.location.search);
+    const searchTag = queryParams.get('q')?.toLowerCase();
+
+    document.getElementById('result-heading').textContent = searchTag
+      ? `Results for "${searchTag}"`
+      : "No tag provided";
+
+    fetch('http://localhost:11000/api/get/product')
+      .then(res => res.json())
+      .then(data => {
+        const allProducts = data.allProduct || [];
+        const results = allProducts.filter(product =>
+          product.tags?.some(tag => tag.toLowerCase() === searchTag)
+        );
+
+        const container = document.getElementById("results");
+
+        if (results.length === 0) {
+          container.innerHTML = "<p>No products found for this tag.</p>";
+          return;
+        }
+
+        results.forEach(product => {
+          const card = document.createElement("div");
+          card.className = "product-card";
+
+          const img = document.createElement("img");
+          img.src = product.path;
+          img.alt = product.productName || "Product";
+
+          card.appendChild(img);
+          card.addEventListener("click", () => {
+            window.location.href = `/Detail-page.html?id=${product._id}`;
+          });
+
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Failed to fetch search results:", err);
+        document.getElementById("results").innerHTML = "<p>Error loading results.</p>";
+      });
+
+    // Light/Dark Mode Toggle
+    function toggleTheme() {
+      const current = document.body.getAttribute("data-theme");
+      const next = current === "light" ? "dark" : "light";
+      document.body.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      document.querySelector('.theme-toggle').textContent = next === "light" ? "☀️ Toggle Mode" : "🌙 Toggle Mode";
+    }
+
+    // Load theme from localStorage
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("theme");
+      if (saved) {
+        document.body.setAttribute("data-theme", saved);
+        document.querySelector('.theme-toggle').textContent = saved === "light" ? "☀️ Toggle Mode" : "🌙 Toggle Mode";
+      }
+    });
+  </script>
+</body>
+</html>
