@@ -14,7 +14,7 @@ import { cloudinaryConnect } from './config/cloudinary.js';
 dotenv.config();
 
 
-app.use(cors({ origin: '*',credentials:true }));
+app.use(cors({ origin: ['http://localhost:5500'],credentials:true }));
 
 
 //Middleware

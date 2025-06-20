@@ -270,6 +270,9 @@
             headers: { "Content-Type": "multipart/form-data" }
           }
         );
+
+          console.log(res);
+
         alert("✅ Product successfully added!");
         document.getElementById("productForm").reset();
       } catch (err) {
