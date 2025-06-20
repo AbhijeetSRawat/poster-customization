@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     resetPassword.addEventListener('submit', async (event) => {
         event.preventDefault();
         const email = document.querySelector('#email');
-
+        
         const emailValue = email.value.trim();
-
+        localStorage.setItem('email',emailValue);
         try {
-            const fetchResetApi = await fetch('/api/auth/forgetpassword', {
+            const fetchResetApi = await fetch('http://localhost:11000/api/auth/forgetpassword', {
                 method: "POST",
                 headers: {
                     Accept: 'application/json',

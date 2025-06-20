@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-
+import Otp from "../models/otp.js"
+import { sendMail } from "../utils/sendMail.js";
+import { User } from "../models/user.models.js";
 import  Product  from "../models/add-product.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/APiResponse.js";
@@ -8,7 +10,7 @@ import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer';
 import crypto from 'crypto'
 import dotenv from 'dotenv'
-import { User } from "../models/user.models.js";
+
 import { uploadImageToCloudinary } from "../utils/imageUploader.js";
 dotenv.config();
 
@@ -25,9 +27,6 @@ async function hashPassword(password) {
 async function authSignUpController(req, res) {
     try {
         const { firstName, lastName, email, password, number } = req.body;
-
-        const adminEmail = "Admin@gmail.com";
-        const adminPassword = "123456"
 
         if (!firstName || !lastName || !email || !number || !password) {
             return res.status(400).json({
@@ -123,111 +122,107 @@ async function genrateOtp() {
 
 // Forget Password Controller
 async function userForgetPassword(req, res) {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        if (!email) {
-            return res.status(404).json({
-                success: false,
-                message: "Email is Required"
-            });
-        }
-
-        // Email check karna
-        const findEmail = await User.findOne({ email: email });
-
-        if (!findEmail) {
-            return res.status(401).json({
-                success: false,
-                message: "Email Not Found"
-            });
-        }
-
-        // OTP generate karna
-        const otp = await genrateOtp();
-        console.log(`Generated OTP: ${otp}`);
-
-        // OTP ko database mein save karna
-        findEmail.otp = otp;
-        await findEmail.save();
-
-        // Nodemailer se OTP bhejna
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            secure: true,
-            port: 465,
-            auth: {
-                user: 'process.env.EMAIL_USER',  // Aapka email
-                pass: 'pass: process.env.EMAIL_PASS'
-            }
-        });
-
-        const mailOptions = {
-            from: 'shrikantsoni809@gmail.com',
-            to: email,
-            subject: `OTP From Your App`,
-            text: `Your OTP is: ${otp}`
-        };
-
-        // OTP ko email se bhejna
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                return res.status(500).json({
-                    success: false,
-                    message: "Failed to send OTP"
-                });
-            }
-            res.status(200).json({
-                success: true,
-                message: "OTP sent successfully to your email"
-            });
-        });
-
-    } catch (error) {
-        console.log(`Error: ${error}`);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
     }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Email not found",
+      });
+    }
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log(otp)
+    const create = await Otp.findOneAndUpdate(
+  { email: email.toLowerCase() },
+  {
+    $set: {
+      otp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    },
+  },
+  { upsert: true }
+);
+
+    
+
+    await sendMail(email, `Your TechBro24 password reset OTP is: ${otp}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully to your email",
+    });
+
+  } catch (error) {
+    console.error('Error in forget password:', error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 }
 
 
+
+
 // veriy Otp
+
+
 async function verifyOtp(req, res) {
-    try {
-        const { otp } = req.body;
+  try {
+    const { email, otp } = req.body;
 
-        if (!otp) {
-            return res.status(401).json({
-                success: false,
-                message: "Otp is required"
-            });
-        };
+    console.log("first",email," ",otp);
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required",
+      });
+    }
+console.log("second");
+   const record = await Otp.findOne({ otp: otp });
 
-        const fetchOtp = await User.findOne({ otp: otp });
+console.log("third");
+console.log("otp: ",record);
 
-        if (!fetchOtp) {
-            return res.status(404).json({
-                success: false,
-                message: "OTP Not Found"
-            });
-        };
+    if (!record || record.otp !== otp || record.expiresAt < Date.now()) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+console.log("4");
+    await Otp.deleteOne({ otp }); // Cleanup OTP after use
+console.log("5");
+    const user = await User.findOne({ email: record.email.toLowerCase() });
+console.log("6");
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+      userId: user ? user._id : null,
+    });
 
-        return res.status(200).json({
-            success: true,
-            message: "OTP Verified Succesfull",
-            userId: fetchOtp._id
-        });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error during OTP verification",
+    });
+  }
+}
 
-    } catch (error) {
-        console.log(`Error Fetching Otp ${error}`);
-        return res.status(500).json({
-            success: false,
-            message: "Error: Fetching Otp internal server Error"
-        });
-    };
-};
+
+
 
 
 // Update Password 
@@ -717,8 +712,8 @@ export {
     deleteProduct,
     adminProductEdit,
     getProductWithId,
-    updateProductClick
-    
+    updateProductClick,
+
 }
 
 

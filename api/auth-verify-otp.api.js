@@ -16,32 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const otp = otp1 + otp2 + otp3 + otp4;
+  const email =localStorage.getItem('email');
+       try {
 
-        try {
-            const verifyOtpApi = await fetch('/api/auth/verifyotp', {
-                method: "POST",
-                headers: {
-                    Accept: 'application/json',
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({otp: otp })
-            });
 
-            const result = await verifyOtpApi.json();
 
-            if (result.success) {
-                const userId = result.userId;  // Get userId from the response
-                // window.location.href = `./auth-otp.html?userId=${userId}`;  // Append userId as URL parameter
 
-                window.location.href = `./auth-reset-password.html?userId=${userId}`; 
-            } else {
-                alert("Invalid OTP. Please try again.");
-            }
 
-        } catch (error) {
-            alert("Error: Please try again");
-            console.error(error);
-        }
+  const verifyOtpApi = await fetch('http://localhost:11000/api/auth/verifyotp', {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, otp })
+  });
+
+  const result = await verifyOtpApi.json();
+
+  if (verifyOtpApi.ok && result.success) {
+    const userId = result.userId;
+
+    // Navigate to reset password page with userId in URL
+    window.location.href = `./auth-reset-password.html?userId=${userId}`;
+  } else {
+    alert(result.message || "Invalid OTP. Please try again.");
+  }
+} catch (error) {
+  console.error("OTP verification failed:", error);
+  alert("Error: Please try again later.");
+}
+
     });
 
     document.querySelectorAll('.otp-inputs input').forEach((input, index, inputs) => {

@@ -57,7 +57,26 @@
       justify-content: center;
     }
 
+    .back-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background-color: var(--highlight);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 999;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
     .product-card {
+      display:flex;
+      justify-content: center;
+      justify-items: center;
       background: var(--card-bg);
       border-radius: 10px;
       padding: 12px;
@@ -87,7 +106,7 @@
   <button class="theme-toggle" onclick="toggleTheme()">☀️ Toggle Mode</button>
   <h1 id="result-heading">Search Results</h1>
   <div class="results-container" id="results"></div>
-
+  <button onclick="history.back()" class="back-btn">← Back</button>
   <script>
     const queryParams = new URLSearchParams(window.location.search);
     const searchTag = queryParams.get('q')?.toLowerCase();
@@ -101,7 +120,7 @@
       .then(data => {
         const allProducts = data.allProduct || [];
         const results = allProducts.filter(product =>
-          product.tags?.some(tag => tag.toLowerCase() === searchTag)
+          product.tags?.some(tag => tag.toLowerCase().includes(searchTag))
         );
 
         const container = document.getElementById("results");

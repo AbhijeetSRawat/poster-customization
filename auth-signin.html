@@ -304,6 +304,7 @@
         localStorage.setItem("token", data.token);
         localStorage.setItem("fullName", `${data.user.firstName} ${data.user.lastName}`);
         localStorage.setItem("firstName", `${data.user.firstName}`);
+        localStorage.setItem("email",data.user.email)
         localStorage.setItem("role",data.user.role)
         Swal.fire({
           icon: "success",

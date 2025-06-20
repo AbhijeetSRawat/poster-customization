@@ -8,7 +8,12 @@ import { subscribe } from "../controllers/subsciption.js";
 import { createPayment, verifyPayment } from "../controllers/payments.js";
 import { findReferal } from "../controllers/findReferal.js";
 import { createReferal } from "../controllers/createReferal.js";
+import { requestOtpController } from "../controllers/requestOtpController.js";
+import { verifyOtpController } from "../controllers/verifyOtpContrroller.js";
 
+
+router.post('/request-otp', requestOtpController);
+router.post('/verify-otp', verifyOtpController);
 
 
 

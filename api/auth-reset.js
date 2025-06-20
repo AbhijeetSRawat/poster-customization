@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Make sure that userId is correctly passed in the URL
-            const fetchResetPasswordAPi = await fetch(`/api/auth/resetpassword/${userId}`, {
+            const fetchResetPasswordAPi = await fetch(`http://localhost:11000/api/auth/resetpassword/${userId}`, {
                 method: "POST",
                 headers: {
                     Accept: "application/json",

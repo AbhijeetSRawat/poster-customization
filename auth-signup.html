@@ -298,7 +298,8 @@
         <!-- <<<<<<<<<<<footerEnd >>>>>>>>>>>> -->
             <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
        <!-- api -->
-       <script>
+
+       <!-- <script>
         document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('ragisterForm');
 
@@ -354,7 +355,39 @@
   });
 });
 
-       </script>
+       </script> -->
+        
+        <script>
+            document.getElementById('ragisterForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = {
+    firstName: document.getElementById('firstName').value.trim(),
+    lastName: document.getElementById('lastName').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    number: document.getElementById('number').value.trim(),
+    password: document.getElementById('password').value.trim(),
+  };
+
+  const response = await fetch('http://localhost:11000/request-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+
+  const result = await response.json();
+
+  if (response.ok && result.success) {
+    localStorage.setItem('pendingSignup', JSON.stringify(formData));
+    Swal.fire('OTP Sent!', 'Check your email for the OTP.', 'success').then(() => {
+      window.location.href = './verify-otp.html';
+    });
+  } else {
+    Swal.fire('Error', result.message || 'Failed to send OTP.', 'error');
+  }
+});
+
+        </script>
+        
         <script src="./script.js">
      
      
