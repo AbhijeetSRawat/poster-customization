@@ -4,6 +4,7 @@ logout.addEventListener('click', (event) => {
         localStorage.removeItem("token");
         localStorage.removeItem("firstName");
         localStorage.removeItem("fullName");
+        localStorage.removeItem('role');
         window.location.href = '../index.html';
     } else {
         location.reload();

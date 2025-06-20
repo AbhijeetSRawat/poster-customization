@@ -594,7 +594,15 @@
 
     <script src="./script.js">
  
+    
 
+    </script>
+
+    <script>
+         const role = localStorage.getItem("role");
+        if(role == "admin"){
+            window.location.href = "admin-dashboard.html";
+          }
     </script>
 
     <script>
@@ -790,6 +798,8 @@
 
 <script>
   const fullName = localStorage.getItem("fullName");
+
+   
 
   const profileSection = document.getElementById("profile-section");
 
