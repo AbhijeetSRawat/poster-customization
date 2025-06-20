@@ -14,7 +14,7 @@ import { cloudinaryConnect } from './config/cloudinary.js';
 dotenv.config();
 
 
-app.use(cors({ origin: ['http://localhost:5500','https://peaceful-tanuki-331afb.netlify.app/'],credentials:true }));
+app.use(cors({ origin: ['http://localhost:5500','https://peaceful-tanuki-331afb.netlify.app'],credentials:true }));
 
 
 //Middleware
