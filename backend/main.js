@@ -13,7 +13,7 @@ import dotenv from 'dotenv';
 import { cloudinaryConnect } from './config/cloudinary.js';
 dotenv.config();
 
-app.use(cors({ origin: ['http://localhost:5500','https://68550a9afc1bc80eb1139841--fascinating-cascaron-4b9280.netlify.app'],credentials:true }));
+app.use(cors({ origin: ['http://localhost:5500'],credentials:true }));
 
 
 //Middleware
